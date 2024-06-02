@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package order;
+
+
+
+import "google/protobuf/timestamp.proto";
+
+message Status {
+  enum Value {
+    PENDING = 0;
+    COMPLETED = 1;
+    IN_PROGRESS = 2;
+  }
+  Value value = 1;
+}
+
+message Order {
+  int32 id = 1;
+  string user_id = 2;
+  string product_id = 3;
+  int32 quantity = 4;
+  float total_amount = 5;
+  Status status = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
