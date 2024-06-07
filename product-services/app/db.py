@@ -1,8 +1,10 @@
+import asyncio
 from contextlib import asynccontextmanager
 from typing import Annotated
 from fastapi import Depends, FastAPI
 from sqlmodel import SQLModel, Session, create_engine
 from app import settings
+
 
 connection_string = str(settings.DATABASE_URL_USERS).replace(
     "postgresql", "postgresql+psycopg"
@@ -13,11 +15,8 @@ engine = create_engine(
 )
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Creating tables..")
-    create_db_and_tables()
-    yield
+
+
 
 
 def create_db_and_tables():

@@ -3,10 +3,14 @@ from fastapi import HTTPException
 from sqlmodel import select
 from .models import Order, OrderCreate
 from .db import db_dependency
+from app import  order_pb2
+from app import producer
 
+KAFKA_BROKER = "broker:19092"
+KAFKA_TOPIC = "todos"
+KAFKA_CONSUMER_GROUP_ID = "kafkafast-container"
 
-def create_order(session: db_dependency, create_order: OrderCreate, user_id:str):
-
+async def create_order(session: db_dependency, create_order: OrderCreate, user_id:str):
 
     try:    
         # asignid = session.exec(select(Order).where(Order.id))
@@ -16,15 +20,18 @@ def create_order(session: db_dependency, create_order: OrderCreate, user_id:str)
             total_amount = create_order.total_amount,
             quantity = create_order.quantity,
             status = create_order.status,
-
         )
+        prorder = order_pb2.Order(**order)
+        serialized_todo = prorder.SerializeToString()
+        send_result = await producer.send_and_wait(KAFKA_TOPIC, value=serialized_todo)
+        print(f"Message sent: {send_result}")
         session.add(order)
         session.commit()
         session.refresh(order)
         return order
     except Exception as e:
         raise HTTPException(status_code=401,detail=f"Error:{str(e)}")
-
+   
 
 def get_order_by_id(session: db_dependency, order_id: int):
     return session.exec(select(Order).where(Order.id == order_id)).first()

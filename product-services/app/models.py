@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel, text
 from uuid import UUID, uuid4
-from .db import db_dependency
 
 
 # Data to save in the database

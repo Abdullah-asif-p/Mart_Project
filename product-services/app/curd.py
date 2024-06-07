@@ -1,21 +1,21 @@
 import uuid
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status,Depends
 from sqlmodel import Session, select
 from .models import Product, ProductCreate, ProductUpdate
 from .db import db_dependency
+from app import producer, product_schema_pb2
+
+KAFKA_BROKER = "broker:19092"
+KAFKA_TOPIC = "todos"
+KAFKA_CONSUMER_GROUP_ID = "kafkafast-container"
 
 
-def create_product(session: Session, product: ProductCreate ):
+async def create_product(session: Session, product: ProductCreate , producer ):
+    print("\n\n\nCreate_product....\n\n\n")
     try:
         id = str(uuid.uuid4())
-        existing_id = session.exec(select(Product).where(Product.id == id)).first()
-        if existing_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Product is already registered you may need to update or delete the existing product",
-            )
-      
-        add_product = Product(
+        print("\n\n\n\Produced....\n\n\n")
+        productproto = product_schema_pb2.Product(
             id=id,
             name=product.name,
             description=product.description,
@@ -23,12 +23,17 @@ def create_product(session: Session, product: ProductCreate ):
             category=product.category,
             stock=product.stock,
         )
-        session.add(add_product)
-        session.commit()
-        session.refresh(add_product)
-        return add_product
+        print(f"product : {productproto}")
+        # productproto = product_schema_pb2.Product(add_product)
+        serialized_product = productproto.SerializeToString()
+        send_result = await producer.send_and_wait(KAFKA_TOPIC, value=serialized_product)
+        print(f"Message sent: {send_result}")
+        # session.add(add_product)
+        # session.commit()
+        # session.refresh(add_product)
+        return productproto
     except Exception as e:
-        session.rollback()
+        # session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
