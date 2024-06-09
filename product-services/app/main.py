@@ -1,10 +1,11 @@
 import asyncio
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from .db import create_db_and_tables
+from app.core.db import create_db_and_tables
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import router 
-from .consumer import consume_messages
+from app.api import main as router
+from app.core.consumer.consumer import consume_messages
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,5 +37,5 @@ def read_root():
     return {"Hello": "World"}
 
 
-
-app.include_router(router, prefix="/product")
+app.include_router(router.api_router)
+# app.include_router(router, prefix="/product")

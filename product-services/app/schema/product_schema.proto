@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package product;
+
+message ProductRating {
+  optional string id = 1;
+  string product_id = 2;
+  int32 rating = 3;
+  string review = 4;
+}
+
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  string category = 5;
+  int32 stock = 6;
+  optional string expiry = 7;
+  optional string brand  = 8;
+  optional float weight  = 9;
+  optional string sku   = 10;
+  repeated ProductRating ratings = 11;
+}
+
+
+
+
