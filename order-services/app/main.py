@@ -1,8 +1,17 @@
+import asyncio
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from .db import lifespan
+from app.core.db import create_db_and_tables
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import router 
+from app.consumer.consumer import consume_messages
+from app.api import main as router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating tables..")
+    create_db_and_tables()
+    task = task = asyncio.create_task(consume_messages("order"))
+    yield
 
 
 app = FastAPI(
@@ -28,5 +37,4 @@ def read_root():
     return {"Hello": "World"}
 
 
-
-app.include_router(router)
+app.include_router(router.api_router)

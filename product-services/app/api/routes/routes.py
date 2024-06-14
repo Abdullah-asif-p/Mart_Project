@@ -2,12 +2,10 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from app.models.models import Product, ProductCreate, ProductRating, ProductUpdate
-from app.core.db import db_dependency
-from app.core.auth import AdminDep, login_for_access_token
+from app.core.auth import  login_for_access_token
 from app.curd import curd
-from app.core.producer.producer import get_producer
-from app.core.producer.nproducer import get_producer as get_p
-# from .producer import get_producer
+from app.api.deps import get_producer, db_dependency, AdminDep
+
 
 router = APIRouter()
 
@@ -22,20 +20,19 @@ def get_login_for_access_token(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/create_products/", response_model=Product)
+@router.post("/create_products/")
 async def add_product(
-    product: Product,
-    rating: List[ProductRating],
+    product: ProductCreate,
     session: db_dependency,
-    admin: AdminDep,
     getproducer: get_producer,
 ):
-    product.ratings = rating
+    print(product)
     return await curd.create_product(session=session, product=product,producer=getproducer)
+
 
 @router.get("/get_all_products/", response_model=list[Product])
 def list_products(
-    admin: AdminDep,
+    # admin: AdminDep,
     session: db_dependency,
     category: str = None,
     price_min: float = None,

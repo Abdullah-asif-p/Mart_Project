@@ -3,11 +3,11 @@ from typing import Annotated, Any
 from aiokafka import AIOKafkaProducer
 from fastapi import Depends
 from sqlmodel import Session
-from core.db import get_db
-from core.auth import get_user_dep
-from core.producer.producer import get_producer
+from app.core.db import get_db
+from app.core.auth import get_user_dep
+from app.core.producer.producer import get_producer
 
 
-db_dependecy = Annotated[Session, Depends(get_db)]
+db_dependency = Annotated[Session, Depends(get_db)]
 AdminDep = Annotated[Any, Depends(get_user_dep)]
 getproducer = Annotated[AIOKafkaProducer, Depends(get_producer)]
