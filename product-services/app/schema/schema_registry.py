@@ -19,6 +19,7 @@ message ProductRating {
   string review = 4;
 }
 
+
 message Product {
   string id = 1;
   string name = 2;
@@ -32,6 +33,7 @@ message Product {
   optional string sku   = 10;
   ProductRating ratings = 11;
 }
+
 
 """
 

@@ -19,3 +19,4 @@ class CreateInventoryItem(SQLModel):
 
 class InventoryItemUpdate(SQLModel):
     quantity: int
+    status: str = "Not Available"

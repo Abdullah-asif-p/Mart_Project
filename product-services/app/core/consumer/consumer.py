@@ -5,7 +5,7 @@ from app.models.models import Product, ProductRating
 from app.schema import product_schema_pb2
 from app.core.db import get_db
 
-KAFKA_BROKER = "broker:19092"
+KAFKA_BROKER = "broker-1:19092,broker-2:19093,broker-3:19094"
 KAFKA_TOPIC = "Product"
 # KAFKA_CONSUMER_GROUP_ID = "kafkafast-container"
 
@@ -33,7 +33,6 @@ async def consume_messages(topic:str=KAFKA_TOPIC):
             }
             key = message.key.decode("utf-8")
             productratingvalidation = ProductRating.model_validate(product_dict['ratings'])
-            select(ProductRating).where(ProductRating.id).last
             product_dict['ratings'] = productratingvalidation
             product = Product(**product_dict)
             print(f"\n\n Consumer Deserialized data: {product}")

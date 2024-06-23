@@ -3,7 +3,7 @@ from fastapi import HTTPException
 
 from app.schema import order_pb2
 
-KAFKA_BROKER = "broker:19092"
+KAFKA_BROKER = "broker-1:19092,broker-2:19093,broker-3:19094"
 KAFKA_TOPIC = "todos"
 # KAFKA_CONSUMER_GROUP_ID = "kafkafast-container"
 

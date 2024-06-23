@@ -3,7 +3,7 @@ syntax = "proto3";
 package product;
 
 message ProductRating {
-  optional int32 id = 1;
+  string id = 1;
   string product_id = 2;
   int32 rating = 3;
   string review = 4;

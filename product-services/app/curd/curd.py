@@ -38,7 +38,7 @@ async def create_product(session: Session, product: ProductCreate, producer):
             productratingsproto.append(productratingproto)"""
 
         productratingproto = product_schema_pb2.ProductRating(
-            product_id=id, rating=product.ratings.rating, review=product.ratings.review)
+            id=product.ratings.id, product_id=id, rating=product.ratings.rating, review=product.ratings.review)
         productproto = product_schema_pb2.Product(
             id=id,
             name=product.name,
@@ -71,14 +71,14 @@ async def create_product(session: Session, product: ProductCreate, producer):
         Inventory = InventoryItem(product_id=id, quantity=0,name=productproto.name)
         item_dict = {field: getattr(Inventory, field) for field in Inventory.dict()}
         item_json = json.dumps(item_dict).encode("utf-8")
-        send_result1 = await producer.send_and_wait(
+        initialise_inventory = await producer.send_and_wait(
             "Initialise_Inventory", value=item_json, key=Inventorykey
         )
 
         print(f"Message sent: {send_result}")
         l = ProductRating.model_validate(product_dict["ratings"])
-        # product_dict["rating"] = l
-        print("l",l)
+        # # product_dict["rating"] = l
+        print("\n\n\nl",l)
         product_response = Product.model_validate(product_dict)
         product_response.ratings = l
         print(product_response.ratings)

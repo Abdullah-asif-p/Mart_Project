@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package Inventory;
+
+
+message InventoryItem{
+
+  int32 id = 1;
+  string product_id = 2;
+  string name = 3;
+  string quantity = 4;
+  string status = 5;
+}
+

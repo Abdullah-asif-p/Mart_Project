@@ -10,7 +10,7 @@ async def consume_messages(topic, bootstrap_servers):
         topic,
         bootstrap_servers=bootstrap_servers,
         group_id="invt",
-        # auto_offset_reset="earliest",
+        auto_offset_reset="earliest",
     )
 
     # Start the consumer.
@@ -22,15 +22,20 @@ async def consume_messages(topic, bootstrap_servers):
             print(f"Received message on topic {message.topic}")
 
             inventory_data = json.loads(message.value.decode())
+            inventory_key = message.key.decode()
+            print(inventory_key)
             print("TYPE", (type(inventory_data)))
             print(f"Inventory Data {inventory_data}")
-
+            
             with next(get_db()) as session:
                 print("SAVING DATA TO DATABSE")
                 validated_data= InventoryItem.model_validate(inventory_data)
-                db_insert_product = add_new_inventory_item(
-                    inventory_item_data=validated_data, session=session
-                )
+                if inventory_key == "Product Created":
+                    db_insert_product = add_new_inventory_item(
+                        inventory_item_data=validated_data, session=session
+                    )
+                elif inventory_key == "Product Updated":
+                    pass
 
                 print("DB_INSERT_STOCK", db_insert_product)
 

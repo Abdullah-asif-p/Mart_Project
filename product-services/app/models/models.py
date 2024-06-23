@@ -20,7 +20,7 @@ class Product(SQLModel, table=True):
 
 
 class ProductRating(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    id: str = Field(primary_key=True)
     product_id: str = Field(foreign_key="product.id")
     rating: int
     review: Optional[str] = None
@@ -48,7 +48,7 @@ class ProductRating(SQLModel, table=True):
 
 class ProductRatingCreate(BaseModel):
 
-    id: int| None
+    id: str | None
     rating: int
     review: Optional[str]
 

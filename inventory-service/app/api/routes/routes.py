@@ -56,11 +56,16 @@ def delete_single_inventory_item(
 
 
 @router.post("/manage-inventory/{item_id}", response_model=InventoryItem)
-def update_single_inventory_item(item_id: int, item: InventoryItemUpdate, session: db_dependency):
+async def update_single_inventory_item(
+    item_id: int,
+    item: InventoryItemUpdate,
+    session: db_dependency,
+    producer: get_producer,
+):
     """ Update a single inventory item by ID"""
     try:
-        return update_inventory_item(
-            product_id=item_id, UpdateInventory=item, session=session
+        return await update_inventory_item(
+            product_id=item_id, UpdateInventory=item, session=session,producer=producer
         )
     except HTTPException as e:
         raise e
