@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 package product;
@@ -23,6 +24,14 @@ message Product {
   optional string sku   = 10;
   ProductRating ratings = 11;
 }
+
+
+message Intailise_Inventory {
+  string product_id = 1;
+  string name = 2;
+  string status = 3;
+}
+
 
 
 

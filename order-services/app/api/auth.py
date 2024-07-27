@@ -4,16 +4,16 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from requests import get, post 
 from app.core import settings
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/order/login")
 
 def get_current_user(token: str):
     url = "http://user-management:8000/user"
     headers = {"Authorization": f"Bearer {token}"}
     response = get(url, headers=headers)
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    user_id: str = str(payload.get("id"))
+    # payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    # user_id: str = str(payload.get("id"))
     if response.status_code == 200:
-        return user_id
+        return response.json()
 
     raise HTTPException(status_code=response.status_code)
 

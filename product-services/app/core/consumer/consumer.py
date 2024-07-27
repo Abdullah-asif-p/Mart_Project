@@ -39,17 +39,17 @@ async def consume_messages(topic:str=KAFKA_TOPIC):
             print(f"\n\n Consumer : {new_product}")
             with next(get_db()) as session:
                 get_product = session.exec(
-                    select(Product).where(Product.id == new_product.id)
+                    select(Product).where(Product.id == product.id)
                 ).first()
-
-                if not get_product :
+                # print("guyg7ug",product)
+                if key == "Created" :
                     session.add(product)
                     session.commit()
                     session.refresh(product)
+                    print("guyg7ug")
                 elif key == "Deleted":
-                    session.delete(get_product)
-                    session.commit()
-                else:
+                    pass
+                elif key == "Updated":
                     hero_data = product.model_dump(exclude_unset=True)
                     get_product.sqlmodel_update(hero_data)
                     session.add(get_product)
@@ -58,6 +58,7 @@ async def consume_messages(topic:str=KAFKA_TOPIC):
                     print("g")
             print("Done")
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail=(str(e)))
     finally:
         await consumer1.stop()

@@ -48,7 +48,7 @@ async def create_product(session: Session, product: ProductCreate, producer):
             stock=product.stock,
             ratings=productratingproto,
         )
-        print("prot", productproto)
+      
         # k = []
         # for r in productproto.rating:
         #     print(r)
@@ -68,16 +68,22 @@ async def create_product(session: Session, product: ProductCreate, producer):
         )
         # intailise inventory
         Inventorykey = ("Product Created").encode("utf-8")
-        Inventory = InventoryItem(product_id=id, quantity=0,name=productproto.name)
-        item_dict = {field: getattr(Inventory, field) for field in Inventory.dict()}
-        item_json = json.dumps(item_dict).encode("utf-8")
-        initialise_inventory = await producer.send_and_wait(
-            "Initialise_Inventory", value=item_json, key=Inventorykey
+        # Inventory = InventoryItem(product_id=id, quantity=0,name=productproto.name)
+        # item_dict = {field: getattr(Inventory, field) for field in Inventory.dict()}
+        # inventory_proto = json.dumps(item_dict).encode("utf-8")
+        inventory_proto = product_schema_pb2.Intailise_Inventory(
+            product_id=id, name=product.name, status="Not Available"
+        )
+        serialized_inventory = inventory_proto.SerializeToString()
+        print(inventory_proto)
+        print("43543",serialized_inventory)
+        await producer.send_and_wait(
+            "Initialise_Inventory", value=serialized_inventory, key=Inventorykey
         )
 
         print(f"Message sent: {send_result}")
         l = ProductRating.model_validate(product_dict["ratings"])
-        # # product_dict["rating"] = l
+        # product_dict["rating"] = l
         print("\n\n\nl",l)
         product_response = Product.model_validate(product_dict)
         product_response.ratings = l
@@ -134,23 +140,28 @@ async def update_product(
 
 async def delete_product(session: db_dependency, product_id: str, producer):
     product = get_product_by_id(session, product_id)
+    rating_statement = select(ProductRating).where(ProductRating.product_id == product_id)
+    ratings = session.exec(rating_statement).all()
+    for rating in ratings:
+        session.delete(rating)
     if not product:
-        return None
+        raise HTTPException(status_code=404, detail="Product not found")
+    session.delete(product)  
+    session.commit()
     p = product.model_dump()
     productproto = product_schema_pb2.Product(**p)
-    key = ("Deleted").encode("utf-8")
+    Inventorykey = ("Product Deleted").encode("utf-8")
     print(f"product31 : {productproto}")
     Inventory = InventoryItem(
-        id=None, product_id=product_id, quantity=0, status="Deleted"
+        id=None,name=product.name, product_id=product_id, quantity=0, status="Deleted"
     )
-    print(Inventory)
-    item_dict = {field: getattr(Inventory, field) for field in Inventory.dict()}
-    item_json = json.dumps(item_dict).encode("utf-8")
-    send_result1 = await producer.send_and_wait("inventory", value=item_json, key=key)
+    i = product_schema_pb2.Intailise_Inventory(name=product.name, product_id=product_id,status="Deleted")
+    serialized_inventory = i.SerializeToString()
+    send_result1 = await producer.send_and_wait("Initialise_Inventory", value=serialized_inventory, key=Inventorykey)
     serialized_product = productproto.SerializeToString()
     send_result = await producer.send_and_wait(
-        KAFKA_TOPIC, value=serialized_product, key=key
-    )
+        KAFKA_TOPIC, value=serialized_product, key=Inventorykey
+    ) 
     print(f"Message sent: {send_result}")
-    print(productproto)
+    
     return True

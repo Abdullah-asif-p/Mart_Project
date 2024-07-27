@@ -10,7 +10,7 @@ from app.api import main as router
 async def lifespan(app: FastAPI):
     print("Creating tables..")
     create_db_and_tables()
-    task = task = asyncio.create_task(consume_messages("order"))
+    task = task = asyncio.create_task(consume_messages("orders"))
     yield
 
 

@@ -14,11 +14,11 @@ class Status(str, Enum):
 
 
 class Order(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)
     user_id: str
-    product_id: str = Field()
-    quantity:int = Field()
-    total_amount: float = Field()
+    product_id: str 
+    quantity:int 
+    total_amount: float 
     status: Status = Field(default=Status.Pending.value)
     created_at: datetime = Field(default_factory=datetime.utcnow,)
 
@@ -28,6 +28,13 @@ class OrderCreate(SQLModel):
     total_amount: float
     status: Status = Status.Pending.value
     quantity: int 
+
+class OrderUpdate(SQLModel):
+    product_id: str|None = None
+    total_amount: float|None|None= None
+    status: Status|None = None
+    quantity: int|None = None
+
 
 # class Status(Enum):
 #     Pending = "pending"

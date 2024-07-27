@@ -12,15 +12,28 @@ schema_registry_client = SchemaRegistryClient(schema_registry_conf)
 protobuf_schema_str = """
 syntax = "proto3";
 
-message InventoryItem{
-
-  int32 id = 1;
-  string product_id = 2;
-  string name = 3;
-  string quantity = 4;
-  string status = 5;
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  string category = 5;
+  int32 stock = 6;
+  optional string expiry = 7;
+  optional string brand  = 8;
+  optional float weight  = 9;
+  optional string sku   = 10;
+  ProductRating ratings = 11;
 }
 
+
+message Intailise_Inventory {
+  // optional int32 id = 1;
+  string product_id = 2;
+  string name = 3;
+  // int32 quantity = 4;
+  string status = 5;
+}
 
 
 """

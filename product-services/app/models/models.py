@@ -1,5 +1,4 @@
 from typing import List, Optional
-import uuid
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel, text
 from uuid import UUID, uuid4

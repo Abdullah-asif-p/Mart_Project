@@ -1,8 +1,9 @@
 from aiokafka import AIOKafkaConsumer
 import json
 from app.core.db import get_db
-from app.crud.inventory_crud import add_new_inventory_item
+from app.crud.inventory_crud import add_new_inventory_item, delete_inventory_item, delete_inventory_item_by_id
 from app.models.inventory_model import InventoryItem
+from app.schema import inventory_schema_pb2
 
 async def consume_messages(topic, bootstrap_servers):
     # Create a consumer instance.
@@ -20,23 +21,34 @@ async def consume_messages(topic, bootstrap_servers):
         async for message in consumer:
             print("RAW ADD STOCK CONSUMER MESSAGE")
             print(f"Received message on topic {message.topic}")
+            new_product = inventory_schema_pb2.Intailise_Inventory()
+            new_product.ParseFromString(message.value)
 
-            inventory_data = json.loads(message.value.decode())
+            # inventory_data = json.loads(message.value.decode())
             inventory_key = message.key.decode()
             print(inventory_key)
-            print("TYPE", (type(inventory_data)))
-            print(f"Inventory Data {inventory_data}")
-            
+            print("TYPE", (type(new_product)))
+            print(f"Inventory Data {new_product}")
+            productid= new_product.product_id
+            print(productid)
             with next(get_db()) as session:
                 print("SAVING DATA TO DATABSE")
-                validated_data= InventoryItem.model_validate(inventory_data)
                 if inventory_key == "Product Created":
+                    inventory_data=InventoryItem(
+                    product_id= new_product.product_id,
+                    name= new_product.name,
+                    quantity= 0,
+                    status= new_product.status
+                  )
+                    validated_data= InventoryItem.model_validate(inventory_data)
                     db_insert_product = add_new_inventory_item(
                         inventory_item_data=validated_data, session=session
                     )
-                elif inventory_key == "Product Updated":
-                    pass
-
+                if inventory_key == "Product Deleted" and productid:
+                    print("SAVING DATA TO DATABSE")
+                    db_insert_product = delete_inventory_item_by_id(
+                        inventory_item_id=productid, session=session
+                    )
                 print("DB_INSERT_STOCK", db_insert_product)
 
             # Here you can add code to process each message.

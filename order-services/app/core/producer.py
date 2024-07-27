@@ -1,4 +1,6 @@
+from typing import Annotated
 from aiokafka import AIOKafkaProducer
+from fastapi import Depends
 from app.schema.schema_registry import protobuf_serializer
 
 async def get_kafka_producer():
@@ -11,3 +13,5 @@ async def get_kafka_producer():
         yield producer
     finally:
         await producer.stop()
+        
+get_producer= Annotated[AIOKafkaProducer, Depends(get_kafka_producer)]
