@@ -8,29 +8,34 @@ from datetime import datetime, timezone
 
 
 class Status(str, Enum):
-    Pending = "pending"
-    Completed = "completed"
-    Progress = "in progress"
+    PENDING_PAYMENT = "pending payment"
+    # PROCESSING = "processing"
+    COMPLETED = "completed"
+    SHIPPED = "shipped"
+    CANCELLED = "cancelled"
 
 
 class Order(SQLModel, table=True):
     id: str = Field(primary_key=True)
     user_id: str
     product_id: str 
+    product_name: str
     quantity:int 
     total_amount: float 
-    status: Status = Field(default=Status.Pending.value)
+    status: Status = Field(default=Status.PENDING_PAYMENT.value)
     created_at: datetime = Field(default_factory=datetime.utcnow,)
 
 
 class OrderCreate(SQLModel):
     product_id: str
+    product_name :str
     total_amount: float
-    status: Status = Status.Pending.value
+    status: Status = Status.PENDING_PAYMENT.value
     quantity: int 
 
 class OrderUpdate(SQLModel):
     product_id: str|None = None
+    product_name: str | None = None
     total_amount: float|None|None= None
     status: Status|None = None
     quantity: int|None = None

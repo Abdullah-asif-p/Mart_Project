@@ -20,23 +20,6 @@ async def create_product(session: Session, product: ProductCreate, producer):
         print("\nProduced....\n")
         # only one rating can be added
 
-        # logic for multiple ratings
-
-        """productratings = []
-        productratingsproto = []
-        for rat in product.ratings:
-            productrating = ProductRating(
-                id= "1",
-                product_id= id,
-                rating=rat.rating,
-                review=rat.review
-            )
-            productratingproto = product_schema_pb2.ProductRating(
-                id="1", product_id=id, rating=rat.rating, review=rat.review
-            )
-            productratings.append(productrating)
-            productratingsproto.append(productratingproto)"""
-
         productratingproto = product_schema_pb2.ProductRating(
             id=product.ratings.id, product_id=id, rating=product.ratings.rating, review=product.ratings.review)
         productproto = product_schema_pb2.Product(
@@ -48,14 +31,7 @@ async def create_product(session: Session, product: ProductCreate, producer):
             stock=product.stock,
             ratings=productratingproto,
         )
-      
-        # k = []
-        # for r in productproto.rating:
-        #     print(r)
-        #     l = ProductRating.model_validate(r)
-        #     k.append(l)
-        #     print("vALI",l)
-        # print("Ipc",k)
+
 
         key = ("Created").encode("utf-8")
         product_dict = {
@@ -68,9 +44,6 @@ async def create_product(session: Session, product: ProductCreate, producer):
         )
         # intailise inventory
         Inventorykey = ("Product Created").encode("utf-8")
-        # Inventory = InventoryItem(product_id=id, quantity=0,name=productproto.name)
-        # item_dict = {field: getattr(Inventory, field) for field in Inventory.dict()}
-        # inventory_proto = json.dumps(item_dict).encode("utf-8")
         inventory_proto = product_schema_pb2.Intailise_Inventory(
             product_id=id, name=product.name, status="Not Available"
         )
@@ -83,7 +56,6 @@ async def create_product(session: Session, product: ProductCreate, producer):
 
         print(f"Message sent: {send_result}")
         l = ProductRating.model_validate(product_dict["ratings"])
-        # product_dict["rating"] = l
         print("\n\n\nl",l)
         product_response = Product.model_validate(product_dict)
         product_response.ratings = l
@@ -112,7 +84,7 @@ def get_products(
         query = query.where(Product.price >= price_min)
     if price_max is not None:
         query = query.where(Product.price <= price_max)
-    # print(query)
+
     return session.exec(query).all()
 
 

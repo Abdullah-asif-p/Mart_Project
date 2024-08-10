@@ -9,7 +9,8 @@ except FileNotFoundError:
     config = Config()
 
 
-DATABASE_URL_USERS = config("DATABASE_URL_USERS", cast=Secret)
+NOTIFICATION_DATABASE= config("NOTIFICATION_DATABASE", cast=Secret)
+SMTP_SERVER= config("SMTP_SERVER", cast=Secret)
 # TEST_DATABASE_URL = config("TEST_DATABASE_URL", cast=Secret)
 SECRET_KEY = str(config("SECRET_KEY", cast=Secret))
 ALGORITHM = str(config("ALGORITHM", cast=Secret))

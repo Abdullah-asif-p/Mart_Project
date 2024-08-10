@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from app.core.db import create_db_and_tables
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import main as router
-from app.core.consumer.consumer import consume_messages
+from app.kafka.consumer import consume_messages
 
 
 @asynccontextmanager

@@ -127,6 +127,9 @@ async def update_inventory_product(
     # )
     # print(inventory_item_proto)
     # serialized_product = inventory_item.SerializeToString()
+    if inventory_dict["quantity"] >= 1 and inventory_dict["status"] =="Available" :
+        send_result1 = await producer.send_and_wait("Inventory", value=inventory_json, key=Inventorykey)
+        print(send_result1)
     send_result = await producer.send_and_wait(
         "Initialise_Inventory", value=inventory_json, key=Inventorykey
     )

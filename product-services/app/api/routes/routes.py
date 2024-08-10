@@ -78,18 +78,3 @@ async def remove_product(
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted Successfully"}
 
-# @router.delete("/products/{product_id}")
-# def delete_product(product_id: str, session: db_dependency):
-    # product_query = select(Product).where(Product.id == product_id)
-    # product = session.exec(product_query).first()
-    # rating_statement = select(ProductRating).where(ProductRating.product_id == product_id)
-    # ratings = session.exec(rating_statement).all()
-    # for rating in ratings:
-    #     session.delete(rating)
-    # if not product:
-    #     raise HTTPException(status_code=404, detail="Product not found")
-    
-    # session.delete(product)
-    # session.commit()
-
-#     return {"message": "Product deleted successfully"}

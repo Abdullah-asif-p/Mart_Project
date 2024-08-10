@@ -4,13 +4,13 @@ package order;
 
 
 
-// import "google/protobuf/timestamp.proto";
 
 message Status {
   enum Value {
-    PENDING = 0;
+    PENDING_PAYMENT = 0;
     COMPLETED = 1;
-    IN_PROGRESS = 2;
+    SHIPPED = 2;
+    CANCELLED = 3;
   }
   Value value = 1;
 }
@@ -23,5 +23,4 @@ message Order {
   int32 total_amount = 5;
   string status = 6;
   string created_at = 7;
-  // google.protobuf.Timestamp created_at = 7;
 }

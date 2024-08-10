@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from app.core.db import create_db_and_tables
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import main as router
-from app.consumers.initialise_inventory_consumer import consume_messages
+from app.kafka.initialise_inventory_consumer import consume_messages
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -15,7 +15,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     task = asyncio.create_task(
         consume_messages(
-            "Initialise_Inventory", "broker-1:19092,broker-2:19093,broker-3:19094"
+            # "Initialise_Inventory", "broker-1:19092,broker-2:19093,broker-3:19094"
+            "Initialise_Inventory", "broker-1:19092"
         )
     )
     create_db_and_tables()

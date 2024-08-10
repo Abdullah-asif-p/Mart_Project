@@ -9,7 +9,7 @@ from app.core.db import db_dependency
 from app.models.models import Order, OrderCreate, OrderUpdate
 from app.crud import crud
 from app.api.auth import UserDep, login_for_access_token
-from app.core.producer import get_producer
+from app.kafka.producer import get_producer
 
 router = APIRouter()
 @router.post("/login")

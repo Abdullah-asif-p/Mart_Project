@@ -6,7 +6,7 @@ from sqlmodel import SQLModel, Session, create_engine
 from . import settings
 
 
-connection_string = str(settings.DATABASE_URL_USERS).replace(
+connection_string = str(settings.NOTIFICATION_DATABASE).replace(
     "postgresql", "postgresql+psycopg"
 )
 

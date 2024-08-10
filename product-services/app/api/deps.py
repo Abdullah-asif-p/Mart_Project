@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlmodel import Session
 from app.core.db import get_db
 from app.core.auth import get_user_dep
-from app.core.producer.producer import get_producer
+from app.kafka.producer import get_producer
 
 
 db_dependency = Annotated[Session, Depends(get_db)]

@@ -1,0 +1,66 @@
+from aiokafka import AIOKafkaConsumer
+import json
+from typing import Dict
+from app.schema import order_pb2
+from app.models.notification import Notifications
+from app.core.db import get_db
+from app.crud import curd
+# Configuration for Kafka connection
+# KAFKA_BROKERS = "broker-1:19092,broker-2:19093,broker-3:19094"
+ORDER_TOPIC = "orders"
+INVENTORY_TOPIC = "Inventory"
+KAFKA_BROKERS = "broker-1:19092"
+
+async def consume_kafka_messages():
+    """Consume messages from Kafka topics and process them based on topic."""
+
+    # Initialize Kafka consumer
+    consumer = AIOKafkaConsumer(
+        ORDER_TOPIC,
+        # INVENTORY_TOPIC,
+        bootstrap_servers=KAFKA_BROKERS,
+        auto_offset_reset="earliest",
+        # enable_auto_commit=False,
+        group_id="notification-service-2",
+    )
+    await consumer.start() 
+    # Consume messages from topics
+    try:
+        async for message in consumer:
+            topic = message.topic
+            value = message.value.decode("utf-8")
+            # Process messages based on the topic
+        try: 
+            if topic == ORDER_TOPIC:
+                order_data = json.loads(value)
+
+                print(order_data)
+                # inventory_key = message.key.decode()
+                user_id = order_data["user_id"]
+                time = order_data["timestamp"]
+                product_name = order_data["product_name"]
+                print(order_data["timestamp"])
+                print(product_name)
+                notification = Notifications(
+                    message=f"Order {product_name} with status:{order_data['status']}.",
+                    user_id=order_data["user_id"], 
+                    time=str(time),
+                ) 
+                print(notification)
+                with next(get_db()) as session:  
+                    print("SAVING DATA TO DATABSE")
+                    db_insert_product = curd.create_notification(  
+                            notifications=notification, db=session
+                        )
+                    print(db_insert_product)
+        except Exception as e:  
+            await consumer.stop()                     
+            print("gfjfgj",str(e))
+    finally:   
+        await consumer.stop() 
+ 
+
+# def send_notification(notification: Notifications):
+#     """Implement logic to send notifications here."""
+#     # This could involve using an email service, SMS provider, etc.
+#     print(f"Sending notification: {notification.message}")

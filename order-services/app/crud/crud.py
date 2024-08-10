@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
+import json
 import uuid
 from fastapi import HTTPException
 from sqlmodel import Session, select
 from app.models.models import Order, OrderCreate, OrderUpdate
 from app.core.db import db_dependency
 from app.schema import  order_pb2
-from app.core.producer import get_producer
+from app.kafka.producer import get_producer
 
 KAFKA_BROKER = "broker:19092"
 KAFKA_TOPIC = "orders"
@@ -14,35 +15,29 @@ KAFKA_CONSUMER_GROUP_ID = "kafkafast-container"
 async def create_order(session: db_dependency, create_order: OrderCreate, user_id:str, producer):
 
     try:    
-        # asignid = session.exec(select(Order).where(Order.id))
+
         id = str(uuid.uuid4())
         order = Order(
             id=id ,
             user_id= user_id,
+            product_name= create_order.product_name,
             product_id= create_order.product_id,
             total_amount = create_order.total_amount,
             quantity = create_order.quantity,
             status = create_order.status,
         )
+        print(order)
+        order_item = order.dict()
         date = str(order.created_at)
-        print(str(order.created_at))
-        prorder = order_pb2.Order(   
-            id=id ,
-            user_id= user_id,
-            product_id= create_order.product_id,
-            total_amount = int(create_order.total_amount),
-            quantity = create_order.quantity,
-            status = create_order.status,
-            created_at=date)
-        print(prorder)
+        order_item['created_at'] = date
+        n = json.dumps(order_item).encode("utf-8")
         order_key = ("Order Created").encode()
-        serialized_order = prorder.SerializeToString()
-        send_result = await producer.send_and_wait(KAFKA_TOPIC, value=serialized_order , key=order_key)
+        send_result = await producer.send_and_wait(KAFKA_TOPIC, value=n , key=order_key)
         print(f"Message sent: {send_result}")
         return order
     except Exception as e:
         raise HTTPException(status_code=401,detail=f"Error:{str(e)}")
-   
+
 
 def get_order_by_id(session: db_dependency, order_id: int):
     return session.exec(select(Order).where(Order.id == order_id)).first()
@@ -60,6 +55,9 @@ async def update_order_status(session: db_dependency, order_id: str, orderup:Ord
     order_key = ("Order Updated").encode()
     serialized_order = prorder.SerializeToString()
     send_result = await producer.send_and_wait(KAFKA_TOPIC, value=serialized_order , key=order_key)
+    session.add(order)
+    session.commit()
+    session.refresh(order)
     print(f"Message sent: {send_result}")
     if not order:
         return None

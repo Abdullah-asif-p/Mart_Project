@@ -14,21 +14,22 @@ syntax = "proto3";
 
 message Status {
   enum Value {
-    PENDING = 0;
+    PENDING_PAYMENT = 0;
     COMPLETED = 1;
-    IN_PROGRESS = 2;
+    SHIPPED = 2;
+    CANCELLED = 3;
   }
   Value value = 1;
 }
 
 message Order {
-  int32 id = 1;
+  string id = 1;
   string user_id = 2;
   string product_id = 3;
   int32 quantity = 4;
-  float total_amount = 5;
-  Status status = 6;
-  google.protobuf.Timestamp created_at = 7;
+  int32 total_amount = 5;
+  string status = 6;
+  string created_at = 7;
 }
 """
 
