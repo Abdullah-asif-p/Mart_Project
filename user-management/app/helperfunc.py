@@ -59,10 +59,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> Curr
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        username: str = str(payload.get("sub"))
-        user_id: str = str(payload.get("id"))
-        email: str = str(payload.get("email"))
-        role: str = str(payload.get("role"))
+        username = payload.get("sub")
+        user_id = payload.get("id")
+        email = payload.get("email")
+        role = payload.get("role")
         if username is None or user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
